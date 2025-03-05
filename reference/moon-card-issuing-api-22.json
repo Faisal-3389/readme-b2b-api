@@ -1,1 +1,1804 @@
-{"openapi":"3.0.0","info":{"version":"1.1.2","title":"Moon Card Issuing API","description":"Moon's API enables you to issue Visa Cards and purchase branded gift cards for your customers.\n\nWe offer a simple API for Visa cards to:\n - create cards\n - fetch a card and its associated information\n - add a balance to a card (if reloadable)\n - get the transaction history for a card\n - create and remove webhook endpoints that will receive notifications of events (e.g. card transactions, deposits)\n - add funds to your account\n - simulate card transactions (sandbox only)\n\nExample:\n\n1) Create a card C. It has $0 balance to start.\n2) Send 10,000 USDC to our USDC wallet. Moon Reserve is $10,000.\n3) Add $1000 balance to card C. Moon Reserve is now $9,000. Cardholder may now spend up to $1000 on card C.\n\nFor branded gift cards we offer:\n - View list of available branded gift card products\n - purchase branded gift cards\n - mark a branded gift card as used or unused\n\nThe API currently supports the following funding sources: BTC and USDC via Polygon\n"},"servers":[{"description":"SwaggerHub API Auto Mocking","url":"https://virtserver.swaggerhub.com/Moon6/Moon-card-issuing/1.1.1"},{"description":"Staging API","url":"https://stagingapi.paywithmoon.com"},{"description":"Production API","url":"https://api.paywithmoon.com"}],"tags":[{"name":"Cards","description":"Operations related to card management."},{"name":"Webhooks","description":"Operations related to webhook management and notifications."},{"name":"Invoices","description":"Operations related to invoice management."},{"name":"Moon Reserve","description":"Unallocated balance on the account"}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-key"}},"schemas":{"Invoice":{"type":"object","required":["id","address","usdAmountOwed","cryptoAmountOwed","exchangeRateLockExpiration","currency","blockchain"],"properties":{"id":{"type":"string","description":"The invoice's on-chain invoice ID.","example":"inv_1GqIC8w4zwW7xX8qQxMdW3H3"},"address":{"type":"string","description":"The invoice's address.","example":"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"},"usdAmountOwned":{"type":"string","description":"The invoice's USD amount owed.","example":"2.00"},"cryptoAmountOwed":{"type":"string","description":"The invoice's crypto amount owed.","example":"0.0001"},"exchangeRateLockExpiration":{"type":"number","description":"The invoice's exchange rate lock expiration (timestamp). This can be ignored for USDC.","example":1630000000},"currency":{"type":"string","description":"The currency to be paid.","example":"USDC"},"blockchain":{"type":"string","description":"The blockchain over which to make the payment.","example":"POLYGON"}}},"Transaction":{"type":"object","properties":{"type":{"type":"string","description":"The type of transaction.","example":"CARD_TRANSACTION"},"data":{"type":"object","properties":{"card":{"type":"object","properties":{"public_id":{"type":"string","example":12345678},"name":{"type":"string","example":"MoonX Card"},"type":{"type":"string","example":"VISA"}}},"transactionId":{"type":"string","example":12345678},"transactionStatus":{"type":"string","example":"SETTLED"},"datetime":{"type":"string","format":"date-time","example":"2022-01-01T00:00:00.000Z"},"merchant":{"type":"string","example":"MoonX"},"amount":{"type":"number","example":100},"ledgerCurrency":{"type":"string","example":"USD"},"amountFeesInLedgerCurrency":{"type":"number","example":1},"amountInTransactionCurrency":{"type":"number","example":100},"transactionCurrency":{"type":"string","example":"USD"},"amountFeesInTransactionCurrency":{"type":"number","example":1},"fees":{"type":"array","items":{"type":"object","properties":{"type":{"type":"string","example":"TRANSACTION_FEE"},"amount":{"type":"number","example":1},"feeAmountInTransactionCurrency":{"type":"number","example":1},"feeDescription":{"type":"string","example":"A 1% fee (minimum of $1) is charged on all transactions"}}}}}}}},"GiftCardProduct":{"type":"object","properties":{"id":{"type":"string","format":"uuid","description":"The unique identifier for the card product."},"name":{"type":"string","description":"The name of the card product."},"denominations":{"type":"array","items":{"type":"number"},"description":"List of denominations available for the card product, if only specific denominations are available."},"minimum_value":{"type":"number","description":"The minimum value allowed for the card product."},"maximum_value":{"type":"number","description":"The maximum value allowed for the card product."},"fee_amount":{"type":"number","description":"The fee amount for the card product."},"fee_type":{"type":"string","description":"The type of fee for the card product (e.g., 'fixed', 'percentage')."},"merchant":{"type":"object","properties":{"id":{"type":"string","description":"The unique identifier for the merchant."},"name":{"type":"string","description":"The name of the merchant."},"description":{"type":"string","description":"A description of the merchant."},"redemption_instructions":{"type":"string","description":"Instructions for redeeming the product with the merchant."},"primary_text_color":{"type":"string","description":"The primary text color of the merchant branding (hex code)."},"primary_brand_color":{"type":"string","description":"The primary brand color of the merchant branding (hex code)."}}},"categories":{"type":"array","items":{"type":"string"},"description":"List of categories associated with the card product."},"discount_percentage":{"type":"number","format":"float","description":"The discount percentage applied to the card product."}}},"Card":{"type":"object","properties":{"id":{"type":"string","format":"uuid","description":"The unique public identifier for the card.","example":"550e8400-e29b-41d4-a716-446655440000"},"balance":{"type":"number","description":"The value of the card.","example":1000},"available_balance":{"type":"number","description":"The card's available balance.","example":900},"true_balance":{"type":"number","description":"The card's true balance (can contain negative balance).","example":1000},"expiration":{"type":"string","format":"date-time","description":"The expiration date of the card.","example":"2024-12"},"display_expiration":{"type":"string","description":"The expiration date of the card in MM/YY format.","example":"12/24"},"terminated":{"type":"boolean","description":"Indicates if the card has been terminated (deleted).","example":false},"card_product_id":{"type":"string","format":"uuid","description":"The identifier of the card product associated with the card.","example":"beeba3e2-e358-451b-888b-96a51fea0756"},"pan":{"type":"string","description":"The Primary Account Number (PAN) of the card.","example":4242424242424242},"cvv":{"type":"string","description":"The Card Verification Value (CVV) of the card.","example":123},"support_token":{"type":"string","description":"The support token associated with the card.","example":"xX8qQxMdW3H3"},"frozen":{"type":"boolean","description":"Indicates if the card is currently frozen.","example":false}}},"GiftCard":{"type":"object","properties":{"id":{"type":"string","format":"uuid","description":"The unique public identifier for the card.","example":"550e8400-e29b-41d4-a716-446655440000"},"value":{"type":"number","description":"The value of the card.","example":1000},"card_product_id":{"type":"string","format":"uuid","description":"The identifier of the card product associated with the card.","example":"beeba3e2-e358-451b-888b-96a51fea0756"},"support_token":{"type":"string","description":"The support token associated with the card.","example":"xX8qQxMdW3H3"},"marked_used":{"type":"boolean","description":"Indicates if the card is currently marked as used.","example":false},"barcode":{"type":"string","description":"The barcode associated with the gift card.","example":"1234567890"},"pin":{"type":"string","description":"The PIN of the gift card.","example":"355"},"security_code":{"type":"string","description":"The security code of the gift card.","example":"071"},"merchant_card_website":{"type":"string","format":"uri","description":"The website URL for the redemption of the card."},"redemption_instructions":{"type":"string","description":"Instructions for redeeming the gift card with the merchant."}}},"CardProduct":{"type":"object","properties":{"id":{"type":"string","format":"uuid","description":"The unique identifier for the card product."},"name":{"type":"string","description":"The name of the card product."},"minimum_value":{"type":"number","description":"The minimum value allowed for the card product."},"maximum_value":{"type":"number","description":"The maximum value allowed for the card product."},"fee_amount":{"type":"number","description":"The fee amount for the card product."},"fee_type":{"type":"string","description":"The type of fee for the card product (e.g., 'fixed', 'percentage')."},"categories":{"type":"array","items":{"type":"string"},"description":"List of categories associated with the card product."}}}}},"security":[{"ApiKeyAuth":[]}],"paths":{"/v1/api-gateway/gift-card":{"post":{"tags":["Gift Cards"],"summary":"Purchase a Gift Card","description":"Purchase a gift card.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"card_product_id":{"type":"string","description":"The id of the gift card card product to be created.","example":"a8358b18-be77-41b7-af4d-f4e9760cba86"},"amount":{"type":"string","description":"Gift card balance amount","example":"50.00"}}}}}},"responses":{"201":{"description":"Gift card created successfully","content":{"application/json":{"schema":{"$ref":"#/components/schemas/GiftCard"}}}},"400":{"description":"Invalid request"},"429":{"description":"Rate limit exceeded"}}}},"/v1/api-gateway/gift-card/card-products":{"get":{"tags":["Gift Cards"],"summary":"Fetch Gift Card Products","description":"Return the list of gift card products that may be purchased via the API.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"query","name":"currentPage","schema":{"type":"string"},"required":false},{"in":"query","name":"perPage","schema":{"type":"string","maximum":50,"minimum":1,"default":10},"required":false}],"responses":{"200":{"description":"List of the gift cards card products available","content":{"application/json":{"schema":{"type":"object","properties":{"pagination":{"type":"object","properties":{"currentPage":{"type":"number","description":"Current page","example":1},"from":{"type":"number","description":"Start point of pagination","example":1},"lastPage":{"type":"number","description":"Last page of the query","example":30},"perPage":{"type":"number","description":"Number of items per page"},"total":{"type":"number","description":"Total records of query","example":100}}},"card_products":{"type":"array","items":{"$ref":"#/components/schemas/GiftCardProduct"}}}}}}}}}},"/v1/api-gateway/gift-card/{gift_card_id}":{"get":{"tags":["Gift Cards"],"summary":"Fetch a Gift Card","description":"Fetches the gift card with the specified gift_card_id.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"gift_card_id","schema":{"type":"string"},"required":true}],"responses":{"200":{"description":"The gift card with the matching token will be returned","content":{"application/json":{"schema":{"$ref":"#/components/schemas/GiftCard"}}}},"400":{"description":"Invalid request"},"404":{"description":"Unable to find card with the given token"}}},"patch":{"tags":["Gift Cards"],"summary":"Mark a Gift Card as Used/Unused","description":"Mark the specified gift card as used or unused.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"gift_card_id","required":true,"schema":{"type":"string"}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"marked_used":{"type":"boolean","description":"Has the card been used or not","example":true}}}}}},"responses":{"200":{"description":"Gift card updated","content":{"application/json":{"schema":{"$ref":"#/components/schemas/GiftCard"}}}}}}},"/v1/api-gateway/card":{"get":{"summary":"Get a list of cards","description":"Retrieve a paginated list of cards for an user. Supports filtering by end_customer_id and includes inactive cards if specified.","parameters":[{"in":"query","name":"page","schema":{"type":"integer","default":1,"minimum":1},"description":"Page number for pagination."},{"in":"query","name":"limit","schema":{"type":"integer","default":10,"minimum":1,"maximum":50},"description":"Number of records per page."},{"in":"query","name":"end_customer_id","schema":{"type":"string"},"description":"Filter results by the specified `end_customer_id`."},{"in":"query","name":"include_inactive_cards","schema":{"type":"boolean"},"description":"Include inactive cards in the results if set to `true`."}],"responses":{"200":{"description":"A paginated list of cards.","content":{"application/json":{"schema":{"type":"object","properties":{"cards":{"type":"array","items":{"$ref":"#/components/schemas/Card"}},"pagination":{"type":"object","properties":{"page":{"type":"integer"},"limit":{"type":"integer"},"total":{"type":"integer"}}}}}}}},"400":{"description":"Bad Request. Either `userSub` is missing or the request is not from an API Gateway user."},"500":{"description":"Internal Server Error. An error occurred while processing the request."}},"tags":["Cards"]}},"/v1/api-gateway/card/{card_product_id}":{"post":{"tags":["Cards"],"summary":"Create a Card","description":"Create a card of the type specified by the card_product_id","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"card_product_id","description":"The type of card to create","schema":{"type":"string"},"required":true}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"end_customer_id":{"type":"string","description":"The end customer ID","example":12345678}}}}}},"responses":{"201":{"description":"A card was successfully created","content":{"application/json":{"schema":{"type":"object","properties":{"card":{"$ref":"#/components/schemas/Card"}}}}}},"400":{"description":"Invalid request"},"429":{"description":"Rate limit exceeded"}}}},"/v1/api-gateway/card/{card_id}":{"get":{"tags":["Cards"],"summary":"Fetch a Card","description":"Returns the card with the specified card ID.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"card_id","schema":{"type":"string"},"required":true}],"responses":{"200":{"description":"The card with the matching token will be returned","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Card"}}}},"400":{"description":"Invalid request"},"404":{"description":"Unable to find card with the given token"}}}},"/v1/api-gateway/card/{card_id}/add-balance":{"post":{"tags":["Cards"],"summary":"Add balance to a Card","description":"Add balance to a card from your Moon Reserve balance.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"card_id","schema":{"type":"string"},"required":true}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"amount":{"type":"string","description":"Amount in USD to add to the card balance"}}}}}},"responses":{"200":{"description":"Balance was increased successfully","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Card"}}}},"400":{"description":"Invalid request"},"429":{"description":"Rate limit exceeded"}}}},"/v1/api-gateway/card/{card_id}/freeze":{"patch":{"tags":["Cards"],"summary":"Freeze/Unfreeze a Card. This endpoint should not be a user functionality.","description":"By freezing a card, new transactions will not be authorized. Note this does not mean all activity on the card stops. Some activity will continue, such as pending transactions can settle, refunds can process, forced settlements, etc.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"card_id","schema":{"type":"string"},"required":true}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"frozen":{"type":"boolean","description":"When true, the card will be frozen; when false, the card will be unfrozen."}}}}}},"responses":{"200":{"description":"Card status updated successfully","content":{"application/json":{"schema":{"type":"object","properties":{"message":{"type":"string","example":"Card status updated successfully"}}}}}},"400":{"description":"Invalid request"},"429":{"description":"Rate limit exceeded"}}}},"/v1/api-gateway/card/{card_id}/transactions":{"get":{"tags":["Cards"],"summary":"Get Card Transactions","description":"Returns a paginated list of transactions for the specified card.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"card_id","schema":{"type":"string"},"required":true},{"in":"query","name":"currentPage","schema":{"type":"string"},"required":true},{"in":"query","name":"perPage","schema":{"type":"string","maximum":50,"minimum":1,"default":10},"required":true}],"responses":{"200":{"description":"Transactions associated with the card will be returned","content":{"application/json":{"schema":{"type":"object","properties":{"pagination":{"type":"object","properties":{"total":{"type":"number","description":"Total records of the query","example":100},"last_page":{"type":"number","description":"Last page of the query","example":30},"prev_page":{"type":"number","description":"Previous page number (if exists)","example":2},"next_page":{"type":"number","description":"Next page number (if exists)","example":4},"per_page":{"type":"number","description":"Number of items per page","example":10},"current_page":{"type":"number","description":"Current page number","example":3},"from":{"type":"number","description":"Start point of pagination","example":21},"to":{"type":"number","description":"End point of pagination","example":30},"deprecated_fields":{"type":"array","description":"List of deprecated fields in the pagination response","items":{"type":"string"},"example":["lastPage","prevPage","nextPage","currentPage"]}}},"transactions":{"type":"array","items":{"$ref":"#/components/schemas/Transaction"}}}}}}},"400":{"description":"Invalid request"},"404":{"description":"Unable to find card with the given token"}}},"post":{"tags":["Cards"],"summary":"Simulate a Card Transaction","description":"This endpoint only works in sandbox.\n\n This endpoint enables you to simulate a transaction for the specified card. You can set the transaction amount, currency, merchant name and merchant country code.\n \n The transaction type must be one of the following:\n AUTHORIZATION,\n REVERSAL,\n CLEARING,\n REFUND. \n \n Example:\n \n AUTHORIZATION 10 USD. => this will trigger an authorization webhook that contains a transaction ID that must be used in the following simulation requests.\n \n REVERSAL 2 USD. => this will simulate reversing $2 of the authorization.\n \n CLEARING 8 USD. => this will simulate setting the remaining $8.\n \n REFUND 8 USD. => this will simulate refunding the $8.\n","parameters":[{"in":"path","name":"card_id","schema":{"type":"string"},"required":true},{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"transactionAmount":{"type":"number","description":"The amount of the transaction.","example":100},"transactionCurrency":{"type":"string","description":"The currency of the transaction. Valid options are: USD, EUR, BRL, MXN, CAD, GBP, JPY, AUD\n","example":"EUR"},"transactionType":{"type":"string","description":"The type of the transaction.","enum":["AUTHORIZATION","CLEARING","REVERSAL","REFUND"],"example":"AUTHORIZATION"},"merchantName":{"type":"string","description":"The name of the merchant.","example":"Test Merchant"},"merchantCountryCode":{"type":"string","description":"The country code of the merchant.","example":"PT"},"originalTransactionId":{"type":"string","description":"The original transaction ID (required for CLEARING or REVERSAL).","example":"transaction_id"}}}}}},"responses":{"200":{"description":"The transaction was simulated successfully","content":{"application/json":{"schema":{"type":"object","properties":{"response":{"type":"string","description":"Type of response, identifies if a transaction was approved or rejected","example":"AUTHORIZED"}}}}}},"400":{"description":"Invalid request"},"404":{"description":"Unable to find card with the given token"},"500":{"description":"Internal server error"}}}},"/v1/api-gateway/card/card-products":{"get":{"tags":["Cards"],"summary":"Fetch Card Products","description":"Return the list of available card products that you can create via the POST /card endpoint.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"query","name":"currentPage","schema":{"type":"string"},"required":false},{"in":"query","name":"perPage","schema":{"type":"string","maximum":50,"minimum":1,"default":10},"required":false}],"responses":{"200":{"description":"List of the gift cards card products available","content":{"application/json":{"schema":{"type":"object","properties":{"pagination":{"type":"object","properties":{"currentPage":{"type":"number","description":"Current page","example":1},"from":{"type":"number","description":"Start point of pagination","example":1},"lastPage":{"type":"number","description":"Last page of the query","example":30},"perPage":{"type":"number","description":"Number of items per page"},"total":{"type":"number","description":"Total records of query","example":100}}},"card_products":{"type":"array","items":{"$ref":"#/components/schemas/CardProduct"}}}}}}}}}},"/v1/api-gateway/webhook":{"post":{"tags":["Webhooks"],"summary":"Register a Webhook URL","description":"Register a webhook URL to which webhooks will be sent. Note that your endpoint must return always 200 for a POST request in order to get registered.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string","description":"The URL of your system","example":"https://example.com/test/webhook"}}}}}},"responses":{"201":{"description":"Your webhook was created"}}},"delete":{"tags":["Webhooks"],"summary":"Delete a Webhook URL","description":"Delete a webhook URL.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true}],"responses":{"204":{"description":"Your webhook URL was deleted"}}}},"/v1/api-gateway/onchain/invoice":{"get":{"summary":"Get paginated on-chain invoices","description":"Fetch paginated list of on-chain invoices based on query parameters.","tags":["Invoices"],"parameters":[{"in":"query","name":"page","schema":{"type":"integer","default":1},"description":"The page number for pagination."},{"in":"query","name":"limit","schema":{"type":"integer","default":15},"description":"The number of items per page."},{"in":"query","name":"status","schema":{"type":"string","enum":["PROCESSING","PENDING","PAID","UNDERFUNDED","REFUNDED_TO_CREDIT","LOCKED_DUE_TO_TRANSACTION_RISK_ANALYSIS"]},"description":"Filter invoices by payment status. Must match an `OnchainInvoicePaymentStatus`."},{"in":"query","name":"invoice_id","schema":{"type":"string"},"description":"Filter invoices by a specific invoice ID."}],"responses":{"200":{"description":"Successful response with paginated invoices.","content":{"application/json":{"schema":{"type":"object","properties":{"invoices":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string","description":"The invoice ID."},"user_sub":{"type":"string","description":"The user's unique identifier."},"card_id":{"type":"string","description":"The associated card ID."},"payment_status":{"type":"string","description":"The payment status of the invoice. Same as OnchainInvoicePaymentStatus"},"invoiced_amount":{"type":"number","format":"float","description":"The invoiced amount."},"address":{"type":"string","description":"The blockchain address associated with the invoice."},"blockchain":{"type":"string","description":"The blockchain used for the invoice."},"created_at":{"type":"string","format":"date-time","description":"The creation date of the invoice."},"remaining_amount_owed":{"type":"object","description":"The remaining amount owed info for the invoice, only available when fetching a particular invoice with invoiceId.","properties":{"crypto":{"type":"object","properties":{"amount":{"type":"string","description":"The amount in cryptocurrency."},"currency":{"type":"string","description":"The cryptocurrency type."}}},"cardCurrency":{"type":"object","properties":{"amount":{"type":"string","description":"The amount in card currency."},"currency":{"type":"string","description":"The card currency type."}}}}},"exchange_rate_lock_expiration":{"type":"number","format":"integer","description":"The expiration date of the exchange rate lock, only available when fetching a particular invoice with invoiceId."}}}},"pagination":{"type":"object","properties":{"currentPage":{"type":"integer","description":"Current page number."},"from":{"type":"integer","description":"The starting index of the results on the current page."},"lastPage":{"type":"integer","description":"The last available page number."},"perPage":{"type":"integer","description":"The number of items per page."},"total":{"type":"integer","description":"Total number of invoices."}}}}}}}},"400":{"description":"Bad request, typically due to validation errors or missing user information."},"500":{"description":"Internal server error."}}},"post":{"tags":["Invoices"],"summary":"Generate an Invoice","description":"Generate an invoice that once paid will credit your Moon Reserve balance.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"creditPurchaseAmount":{"type":"number","description":"Amount in USD to generate on-chain invoice","example":10},"blockchain":{"type":"string","description":"Blockchain via which the payment will be made (BITCOIN, LIQUID, POLYGON or TRON)","example":"POLYGON"},"currency":{"type":"string","description":"Currency that the payment will be made (BTC, USDT or USDC)","example":"USDC"}}}}}},"responses":{"201":{"description":"Invoice will be returned","content":{"application/json":{"schema":{"type":"object","properties":{"invoice":{"$ref":"#/components/schemas/Invoice"}}}}}},"400":{"description":"Invalid request"}}}},"/v1/api-gateway/onchain/invoice/{invoice_id}/simulate-payment":{"post":{"tags":["Invoices"],"summary":"Simulate Payment of an Invoice (Sandbox Only)","description":"Simulate payment of an invoice.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"in":"path","name":"invoice_id","schema":{"type":"string"},"required":true}],"responses":{"200":{"description":"Onchain payment simulated successfully","content":{"application/json":{"schema":{"type":"object","properties":{"message":{"type":"string","description":"Type of response, identifies if a payment was successful or not","example":"Onchain payment simulated successfully"}}}}}},"400":{"description":"Invalid request"},"500":{"description":"Internal server error"}}}},"/v1/api-gateway/moon-reserve":{"get":{"tags":["Moon Reserve"],"summary":"Fetch Moon Reserve Balance","description":"View your current Moon Reserve balance. This is the amount of unallocated balance on your account.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true}],"responses":{"201":{"description":"Balance of your Moon Reserve","content":{"application/json":{"schema":{"type":"object","properties":{"balance":{"type":"string","description":"Your Moon Reserve balance"}}}}}}}}},"/v1/api-gateway/end-customer/:id":{"patch":{"tags":["End Customer"],"summary":"Update End Customer KYC Status","description":"Update the KYC status of an end customer.","parameters":[{"in":"header","name":"x-api-key","schema":{"type":"string"},"required":true},{"name":"id","in":"query","required":false,"description":"The unique identifier for the end customer.","schema":{"type":"string","default":""}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"is_kyc_verified":{"type":"boolean","description":"The KYC verification status of the end customer.","example":true,"x-readme-id":"0.1"}}}}}},"responses":{"200":{"description":"End customer KYC status updated successfully.","content":{"application/json":{"schema":{"type":"object","properties":{"message":{"type":"string","description":"Confirmation message.","example":"End customer KYC status updated successfully."}}}}}},"400":{"description":"Invalid request. Either `id` or `is_kyc_verified` is missing or the request is not from an API Gateway user."},"500":{"description":"Internal Server Error. An error occurred while processing the request."}}}},"/new-endpoint/:id":{"patch":{"description":"","operationId":"","responses":{"200":{"description":""}},"parameters":[{"name":"id","in":"query","required":false,"description":"The unique identifier for the end customer.","schema":{"type":"string","default":""}},{"name":"x-api-key","in":"header","required":true,"description":"","schema":{"type":"string","default":""}}],"requestBody":{"content":{"application/json":{"schema":{"properties":{"is_kyc_verified":{"type":"string","description":"Is KYC verified value","x-readme-id":"0.0"}},"type":"object"}}}}}}},"x-readme":{"explorer-enabled":true,"proxy-enabled":true}}
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.1.2",
+        "title": "Moon Card Issuing API",
+        "description": "Moon's API enables you to issue Visa Cards and purchase branded gift cards for your customers.\n\nWe offer a simple API for Visa cards to:\n - create cards\n - fetch a card and its associated information\n - add a balance to a card (if reloadable)\n - get the transaction history for a card\n - create and remove webhook endpoints that will receive notifications of events (e.g. card transactions, deposits)\n - add funds to your account\n - simulate card transactions (sandbox only)\n\nExample:\n\n1) Create a card C. It has $0 balance to start.\n2) Send 10,000 USDC to our USDC wallet. Moon Reserve is $10,000.\n3) Add $1000 balance to card C. Moon Reserve is now $9,000. Cardholder may now spend up to $1000 on card C.\n\nFor branded gift cards we offer:\n - View list of available branded gift card products\n - purchase branded gift cards\n - mark a branded gift card as used or unused\n\nThe API currently supports the following funding sources: BTC and USDC via Polygon\n"
+    },
+    "servers": [
+        {
+            "description": "SwaggerHub API Auto Mocking",
+            "url": "https://virtserver.swaggerhub.com/Moon6/Moon-card-issuing/1.1.1"
+        },
+        {
+            "description": "Staging API",
+            "url": "https://stagingapi.paywithmoon.com"
+        },
+        {
+            "description": "Production API",
+            "url": "https://api.paywithmoon.com"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Cards",
+            "description": "Operations related to card management."
+        },
+        {
+            "name": "Webhooks",
+            "description": "Operations related to webhook management and notifications."
+        },
+        {
+            "name": "Invoices",
+            "description": "Operations related to invoice management."
+        },
+        {
+            "name": "Moon Reserve",
+            "description": "Unallocated balance on the account"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-api-key"
+            }
+        },
+        "schemas": {
+            "Invoice": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "address",
+                    "usdAmountOwed",
+                    "cryptoAmountOwed",
+                    "exchangeRateLockExpiration",
+                    "currency",
+                    "blockchain"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The invoice's on-chain invoice ID.",
+                        "example": "inv_1GqIC8w4zwW7xX8qQxMdW3H3"
+                    },
+                    "address": {
+                        "type": "string",
+                        "description": "The invoice's address.",
+                        "example": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+                    },
+                    "usdAmountOwned": {
+                        "type": "string",
+                        "description": "The invoice's USD amount owed.",
+                        "example": "2.00"
+                    },
+                    "cryptoAmountOwed": {
+                        "type": "string",
+                        "description": "The invoice's crypto amount owed.",
+                        "example": "0.0001"
+                    },
+                    "exchangeRateLockExpiration": {
+                        "type": "number",
+                        "description": "The invoice's exchange rate lock expiration (timestamp). This can be ignored for USDC.",
+                        "example": 1630000000
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "The currency to be paid.",
+                        "example": "USDC"
+                    },
+                    "blockchain": {
+                        "type": "string",
+                        "description": "The blockchain over which to make the payment.",
+                        "example": "POLYGON"
+                    }
+                }
+            },
+            "Transaction": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "The type of transaction.",
+                        "example": "CARD_TRANSACTION"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "card": {
+                                "type": "object",
+                                "properties": {
+                                    "public_id": {
+                                        "type": "string",
+                                        "example": 12345678
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "MoonX Card"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "VISA"
+                                    }
+                                }
+                            },
+                            "transactionId": {
+                                "type": "string",
+                                "example": 12345678
+                            },
+                            "transactionStatus": {
+                                "type": "string",
+                                "example": "SETTLED"
+                            },
+                            "datetime": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2022-01-01T00:00:00.000Z"
+                            },
+                            "merchant": {
+                                "type": "string",
+                                "example": "MoonX"
+                            },
+                            "amount": {
+                                "type": "number",
+                                "example": 100
+                            },
+                            "ledgerCurrency": {
+                                "type": "string",
+                                "example": "USD"
+                            },
+                            "amountFeesInLedgerCurrency": {
+                                "type": "number",
+                                "example": 1
+                            },
+                            "amountInTransactionCurrency": {
+                                "type": "number",
+                                "example": 100
+                            },
+                            "transactionCurrency": {
+                                "type": "string",
+                                "example": "USD"
+                            },
+                            "amountFeesInTransactionCurrency": {
+                                "type": "number",
+                                "example": 1
+                            },
+                            "fees": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "TRANSACTION_FEE"
+                                        },
+                                        "amount": {
+                                            "type": "number",
+                                            "example": 1
+                                        },
+                                        "feeAmountInTransactionCurrency": {
+                                            "type": "number",
+                                            "example": 1
+                                        },
+                                        "feeDescription": {
+                                            "type": "string",
+                                            "example": "A 1% fee (minimum of $1) is charged on all transactions"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "GiftCardProduct": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The unique identifier for the card product."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the card product."
+                    },
+                    "denominations": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        },
+                        "description": "List of denominations available for the card product, if only specific denominations are available."
+                    },
+                    "minimum_value": {
+                        "type": "number",
+                        "description": "The minimum value allowed for the card product."
+                    },
+                    "maximum_value": {
+                        "type": "number",
+                        "description": "The maximum value allowed for the card product."
+                    },
+                    "fee_amount": {
+                        "type": "number",
+                        "description": "The fee amount for the card product."
+                    },
+                    "fee_type": {
+                        "type": "string",
+                        "description": "The type of fee for the card product (e.g., 'fixed', 'percentage')."
+                    },
+                    "merchant": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "description": "The unique identifier for the merchant."
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the merchant."
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "A description of the merchant."
+                            },
+                            "redemption_instructions": {
+                                "type": "string",
+                                "description": "Instructions for redeeming the product with the merchant."
+                            },
+                            "primary_text_color": {
+                                "type": "string",
+                                "description": "The primary text color of the merchant branding (hex code)."
+                            },
+                            "primary_brand_color": {
+                                "type": "string",
+                                "description": "The primary brand color of the merchant branding (hex code)."
+                            }
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of categories associated with the card product."
+                    },
+                    "discount_percentage": {
+                        "type": "number",
+                        "format": "float",
+                        "description": "The discount percentage applied to the card product."
+                    }
+                }
+            },
+            "Card": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The unique public identifier for the card.",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "balance": {
+                        "type": "number",
+                        "description": "The value of the card.",
+                        "example": 1000
+                    },
+                    "available_balance": {
+                        "type": "number",
+                        "description": "The card's available balance.",
+                        "example": 900
+                    },
+                    "true_balance": {
+                        "type": "number",
+                        "description": "The card's true balance (can contain negative balance).",
+                        "example": 1000
+                    },
+                    "expiration": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The expiration date of the card.",
+                        "example": "2024-12"
+                    },
+                    "display_expiration": {
+                        "type": "string",
+                        "description": "The expiration date of the card in MM/YY format.",
+                        "example": "12/24"
+                    },
+                    "terminated": {
+                        "type": "boolean",
+                        "description": "Indicates if the card has been terminated (deleted).",
+                        "example": false
+                    },
+                    "card_product_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The identifier of the card product associated with the card.",
+                        "example": "beeba3e2-e358-451b-888b-96a51fea0756"
+                    },
+                    "pan": {
+                        "type": "string",
+                        "description": "The Primary Account Number (PAN) of the card.",
+                        "example": 4242424242424242
+                    },
+                    "cvv": {
+                        "type": "string",
+                        "description": "The Card Verification Value (CVV) of the card.",
+                        "example": 123
+                    },
+                    "support_token": {
+                        "type": "string",
+                        "description": "The support token associated with the card.",
+                        "example": "xX8qQxMdW3H3"
+                    },
+                    "frozen": {
+                        "type": "boolean",
+                        "description": "Indicates if the card is currently frozen.",
+                        "example": false
+                    }
+                }
+            },
+            "GiftCard": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The unique public identifier for the card.",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "value": {
+                        "type": "number",
+                        "description": "The value of the card.",
+                        "example": 1000
+                    },
+                    "card_product_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The identifier of the card product associated with the card.",
+                        "example": "beeba3e2-e358-451b-888b-96a51fea0756"
+                    },
+                    "support_token": {
+                        "type": "string",
+                        "description": "The support token associated with the card.",
+                        "example": "xX8qQxMdW3H3"
+                    },
+                    "marked_used": {
+                        "type": "boolean",
+                        "description": "Indicates if the card is currently marked as used.",
+                        "example": false
+                    },
+                    "barcode": {
+                        "type": "string",
+                        "description": "The barcode associated with the gift card.",
+                        "example": "1234567890"
+                    },
+                    "pin": {
+                        "type": "string",
+                        "description": "The PIN of the gift card.",
+                        "example": "355"
+                    },
+                    "security_code": {
+                        "type": "string",
+                        "description": "The security code of the gift card.",
+                        "example": "071"
+                    },
+                    "merchant_card_website": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "The website URL for the redemption of the card."
+                    },
+                    "redemption_instructions": {
+                        "type": "string",
+                        "description": "Instructions for redeeming the gift card with the merchant."
+                    }
+                }
+            },
+            "CardProduct": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The unique identifier for the card product."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the card product."
+                    },
+                    "minimum_value": {
+                        "type": "number",
+                        "description": "The minimum value allowed for the card product."
+                    },
+                    "maximum_value": {
+                        "type": "number",
+                        "description": "The maximum value allowed for the card product."
+                    },
+                    "fee_amount": {
+                        "type": "number",
+                        "description": "The fee amount for the card product."
+                    },
+                    "fee_type": {
+                        "type": "string",
+                        "description": "The type of fee for the card product (e.g., 'fixed', 'percentage')."
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of categories associated with the card product."
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "ApiKeyAuth": []
+        }
+    ],
+    "paths": {
+        "/v1/api-gateway/gift-card": {
+            "post": {
+                "tags": [
+                    "Gift Cards"
+                ],
+                "summary": "Purchase a Gift Card",
+                "description": "Purchase a gift card.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "card_product_id": {
+                                        "type": "string",
+                                        "description": "The id of the gift card card product to be created.",
+                                        "example": "a8358b18-be77-41b7-af4d-f4e9760cba86"
+                                    },
+                                    "amount": {
+                                        "type": "string",
+                                        "description": "Gift card balance amount",
+                                        "example": "50.00"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Gift card created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GiftCard"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/gift-card/card-products": {
+            "get": {
+                "tags": [
+                    "Gift Cards"
+                ],
+                "summary": "Fetch Gift Card Products",
+                "description": "Return the list of gift card products that may be purchased via the API.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "currentPage",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": false
+                    },
+                    {
+                        "in": "query",
+                        "name": "perPage",
+                        "schema": {
+                            "type": "string",
+                            "maximum": 50,
+                            "minimum": 1,
+                            "default": 10
+                        },
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of the gift cards card products available",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "currentPage": {
+                                                    "type": "number",
+                                                    "description": "Current page",
+                                                    "example": 1
+                                                },
+                                                "from": {
+                                                    "type": "number",
+                                                    "description": "Start point of pagination",
+                                                    "example": 1
+                                                },
+                                                "lastPage": {
+                                                    "type": "number",
+                                                    "description": "Last page of the query",
+                                                    "example": 30
+                                                },
+                                                "perPage": {
+                                                    "type": "number",
+                                                    "description": "Number of items per page"
+                                                },
+                                                "total": {
+                                                    "type": "number",
+                                                    "description": "Total records of query",
+                                                    "example": 100
+                                                }
+                                            }
+                                        },
+                                        "card_products": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/GiftCardProduct"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/gift-card/{gift_card_id}": {
+            "get": {
+                "tags": [
+                    "Gift Cards"
+                ],
+                "summary": "Fetch a Gift Card",
+                "description": "Fetches the gift card with the specified gift_card_id.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "gift_card_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The gift card with the matching token will be returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GiftCard"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Unable to find card with the given token"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Gift Cards"
+                ],
+                "summary": "Mark a Gift Card as Used/Unused",
+                "description": "Mark the specified gift card as used or unused.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "gift_card_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "marked_used": {
+                                        "type": "boolean",
+                                        "description": "Has the card been used or not",
+                                        "example": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Gift card updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GiftCard"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/card": {
+            "get": {
+                "summary": "Get a list of cards",
+                "description": "Retrieve a paginated list of cards for an user. Supports filtering by end_customer_id and includes inactive cards if specified.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        },
+                        "description": "Page number for pagination."
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "minimum": 1,
+                            "maximum": 50
+                        },
+                        "description": "Number of records per page."
+                    },
+                    {
+                        "in": "query",
+                        "name": "end_customer_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter results by the specified `end_customer_id`."
+                    },
+                    {
+                        "in": "query",
+                        "name": "include_inactive_cards",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Include inactive cards in the results if set to `true`."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of cards.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cards": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Card"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "limit": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request. Either `userSub` is missing or the request is not from an API Gateway user."
+                    },
+                    "500": {
+                        "description": "Internal Server Error. An error occurred while processing the request."
+                    }
+                },
+                "tags": [
+                    "Cards"
+                ]
+            }
+        },
+        "/v1/api-gateway/card/{card_product_id}": {
+            "post": {
+                "tags": [
+                    "Cards"
+                ],
+                "summary": "Create a Card",
+                "description": "Create a card of the type specified by the card_product_id",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "card_product_id",
+                        "description": "The type of card to create",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "end_customer_id": {
+                                        "type": "string",
+                                        "description": "The end customer ID",
+                                        "example": 12345678
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "A card was successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "card": {
+                                            "$ref": "#/components/schemas/Card"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/card/{card_id}": {
+            "get": {
+                "tags": [
+                    "Cards"
+                ],
+                "summary": "Fetch a Card",
+                "description": "Returns the card with the specified card ID.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "card_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The card with the matching token will be returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Card"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Unable to find card with the given token"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/card/{card_id}/add-balance": {
+            "post": {
+                "tags": [
+                    "Cards"
+                ],
+                "summary": "Add balance to a Card",
+                "description": "Add balance to a card from your Moon Reserve balance.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "card_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "string",
+                                        "description": "Amount in USD to add to the card balance"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Balance was increased successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Card"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/card/{card_id}/freeze": {
+            "patch": {
+                "tags": [
+                    "Cards"
+                ],
+                "summary": "Freeze/Unfreeze a Card. This endpoint should not be a user functionality.",
+                "description": "By freezing a card, new transactions will not be authorized. Note this does not mean all activity on the card stops. Some activity will continue, such as pending transactions can settle, refunds can process, forced settlements, etc.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "card_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "frozen": {
+                                        "type": "boolean",
+                                        "description": "When true, the card will be frozen; when false, the card will be unfrozen."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Card status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Card status updated successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/card/{card_id}/transactions": {
+            "get": {
+                "tags": [
+                    "Cards"
+                ],
+                "summary": "Get Card Transactions",
+                "description": "Returns a paginated list of transactions for the specified card.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "card_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "currentPage",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "perPage",
+                        "schema": {
+                            "type": "string",
+                            "maximum": 50,
+                            "minimum": 1,
+                            "default": 10
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transactions associated with the card will be returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "number",
+                                                    "description": "Total records of the query",
+                                                    "example": 100
+                                                },
+                                                "last_page": {
+                                                    "type": "number",
+                                                    "description": "Last page of the query",
+                                                    "example": 30
+                                                },
+                                                "prev_page": {
+                                                    "type": "number",
+                                                    "description": "Previous page number (if exists)",
+                                                    "example": 2
+                                                },
+                                                "next_page": {
+                                                    "type": "number",
+                                                    "description": "Next page number (if exists)",
+                                                    "example": 4
+                                                },
+                                                "per_page": {
+                                                    "type": "number",
+                                                    "description": "Number of items per page",
+                                                    "example": 10
+                                                },
+                                                "current_page": {
+                                                    "type": "number",
+                                                    "description": "Current page number",
+                                                    "example": 3
+                                                },
+                                                "from": {
+                                                    "type": "number",
+                                                    "description": "Start point of pagination",
+                                                    "example": 21
+                                                },
+                                                "to": {
+                                                    "type": "number",
+                                                    "description": "End point of pagination",
+                                                    "example": 30
+                                                },
+                                                "deprecated_fields": {
+                                                    "type": "array",
+                                                    "description": "List of deprecated fields in the pagination response",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "lastPage",
+                                                        "prevPage",
+                                                        "nextPage",
+                                                        "currentPage"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        "transactions": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Transaction"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Unable to find card with the given token"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Cards"
+                ],
+                "summary": "Simulate a Card Transaction",
+                "description": "This endpoint only works in sandbox.\n\n This endpoint enables you to simulate a transaction for the specified card. You can set the transaction amount, currency, merchant name and merchant country code.\n \n The transaction type must be one of the following:\n AUTHORIZATION,\n REVERSAL,\n CLEARING,\n REFUND. \n \n Example:\n \n AUTHORIZATION 10 USD. => this will trigger an authorization webhook that contains a transaction ID that must be used in the following simulation requests.\n \n REVERSAL 2 USD. => this will simulate reversing $2 of the authorization.\n \n CLEARING 8 USD. => this will simulate setting the remaining $8.\n \n REFUND 8 USD. => this will simulate refunding the $8.\n",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "card_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "transactionAmount": {
+                                        "type": "number",
+                                        "description": "The amount of the transaction.",
+                                        "example": 100
+                                    },
+                                    "transactionCurrency": {
+                                        "type": "string",
+                                        "description": "The currency of the transaction. Valid options are: USD, EUR, BRL, MXN, CAD, GBP, JPY, AUD\n",
+                                        "example": "EUR"
+                                    },
+                                    "transactionType": {
+                                        "type": "string",
+                                        "description": "The type of the transaction.",
+                                        "enum": [
+                                            "AUTHORIZATION",
+                                            "CLEARING",
+                                            "REVERSAL",
+                                            "REFUND"
+                                        ],
+                                        "example": "AUTHORIZATION"
+                                    },
+                                    "merchantName": {
+                                        "type": "string",
+                                        "description": "The name of the merchant.",
+                                        "example": "Test Merchant"
+                                    },
+                                    "merchantCountryCode": {
+                                        "type": "string",
+                                        "description": "The country code of the merchant.",
+                                        "example": "PT"
+                                    },
+                                    "originalTransactionId": {
+                                        "type": "string",
+                                        "description": "The original transaction ID (required for CLEARING or REVERSAL).",
+                                        "example": "transaction_id"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The transaction was simulated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "string",
+                                            "description": "Type of response, identifies if a transaction was approved or rejected",
+                                            "example": "AUTHORIZED"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Unable to find card with the given token"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/card/card-products": {
+            "get": {
+                "tags": [
+                    "Cards"
+                ],
+                "summary": "Fetch Card Products",
+                "description": "Return the list of available card products that you can create via the POST /card endpoint.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "currentPage",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": false
+                    },
+                    {
+                        "in": "query",
+                        "name": "perPage",
+                        "schema": {
+                            "type": "string",
+                            "maximum": 50,
+                            "minimum": 1,
+                            "default": 10
+                        },
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of the gift cards card products available",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "currentPage": {
+                                                    "type": "number",
+                                                    "description": "Current page",
+                                                    "example": 1
+                                                },
+                                                "from": {
+                                                    "type": "number",
+                                                    "description": "Start point of pagination",
+                                                    "example": 1
+                                                },
+                                                "lastPage": {
+                                                    "type": "number",
+                                                    "description": "Last page of the query",
+                                                    "example": 30
+                                                },
+                                                "perPage": {
+                                                    "type": "number",
+                                                    "description": "Number of items per page"
+                                                },
+                                                "total": {
+                                                    "type": "number",
+                                                    "description": "Total records of query",
+                                                    "example": 100
+                                                }
+                                            }
+                                        },
+                                        "card_products": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CardProduct"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/webhook": {
+            "post": {
+                "tags": [
+                    "Webhooks"
+                ],
+                "summary": "Register a Webhook URL",
+                "description": "Register a webhook URL to which webhooks will be sent. Note that your endpoint must return always 200 for a POST request in order to get registered.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "description": "The URL of your system",
+                                        "example": "https://example.com/test/webhook"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your webhook was created"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Webhooks"
+                ],
+                "summary": "Delete a Webhook URL",
+                "description": "Delete a webhook URL.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Your webhook URL was deleted"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/onchain/invoice": {
+            "get": {
+                "summary": "Get paginated on-chain invoices",
+                "description": "Fetch paginated list of on-chain invoices based on query parameters.",
+                "tags": [
+                    "Invoices"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "description": "The page number for pagination."
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        },
+                        "description": "The number of items per page."
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PROCESSING",
+                                "PENDING",
+                                "PAID",
+                                "UNDERFUNDED",
+                                "REFUNDED_TO_CREDIT",
+                                "LOCKED_DUE_TO_TRANSACTION_RISK_ANALYSIS"
+                            ]
+                        },
+                        "description": "Filter invoices by payment status. Must match an `OnchainInvoicePaymentStatus`."
+                    },
+                    {
+                        "in": "query",
+                        "name": "invoice_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter invoices by a specific invoice ID."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with paginated invoices.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "invoices": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "description": "The invoice ID."
+                                                    },
+                                                    "user_sub": {
+                                                        "type": "string",
+                                                        "description": "The user's unique identifier."
+                                                    },
+                                                    "card_id": {
+                                                        "type": "string",
+                                                        "description": "The associated card ID."
+                                                    },
+                                                    "payment_status": {
+                                                        "type": "string",
+                                                        "description": "The payment status of the invoice. Same as OnchainInvoicePaymentStatus"
+                                                    },
+                                                    "invoiced_amount": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "description": "The invoiced amount."
+                                                    },
+                                                    "address": {
+                                                        "type": "string",
+                                                        "description": "The blockchain address associated with the invoice."
+                                                    },
+                                                    "blockchain": {
+                                                        "type": "string",
+                                                        "description": "The blockchain used for the invoice."
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "description": "The creation date of the invoice."
+                                                    },
+                                                    "remaining_amount_owed": {
+                                                        "type": "object",
+                                                        "description": "The remaining amount owed info for the invoice, only available when fetching a particular invoice with invoiceId.",
+                                                        "properties": {
+                                                            "crypto": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "amount": {
+                                                                        "type": "string",
+                                                                        "description": "The amount in cryptocurrency."
+                                                                    },
+                                                                    "currency": {
+                                                                        "type": "string",
+                                                                        "description": "The cryptocurrency type."
+                                                                    }
+                                                                }
+                                                            },
+                                                            "cardCurrency": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "amount": {
+                                                                        "type": "string",
+                                                                        "description": "The amount in card currency."
+                                                                    },
+                                                                    "currency": {
+                                                                        "type": "string",
+                                                                        "description": "The card currency type."
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "exchange_rate_lock_expiration": {
+                                                        "type": "number",
+                                                        "format": "integer",
+                                                        "description": "The expiration date of the exchange rate lock, only available when fetching a particular invoice with invoiceId."
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "currentPage": {
+                                                    "type": "integer",
+                                                    "description": "Current page number."
+                                                },
+                                                "from": {
+                                                    "type": "integer",
+                                                    "description": "The starting index of the results on the current page."
+                                                },
+                                                "lastPage": {
+                                                    "type": "integer",
+                                                    "description": "The last available page number."
+                                                },
+                                                "perPage": {
+                                                    "type": "integer",
+                                                    "description": "The number of items per page."
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "description": "Total number of invoices."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, typically due to validation errors or missing user information."
+                    },
+                    "500": {
+                        "description": "Internal server error."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Invoices"
+                ],
+                "summary": "Generate an Invoice",
+                "description": "Generate an invoice that once paid will credit your Moon Reserve balance.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "creditPurchaseAmount": {
+                                        "type": "number",
+                                        "description": "Amount in USD to generate on-chain invoice",
+                                        "example": 10
+                                    },
+                                    "blockchain": {
+                                        "type": "string",
+                                        "description": "Blockchain via which the payment will be made (BITCOIN, LIQUID, POLYGON or TRON)",
+                                        "example": "POLYGON"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "description": "Currency that the payment will be made (BTC, USDT or USDC)",
+                                        "example": "USDC"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Invoice will be returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "invoice": {
+                                            "$ref": "#/components/schemas/Invoice"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/onchain/invoice/{invoice_id}/simulate-payment": {
+            "post": {
+                "tags": [
+                    "Invoices"
+                ],
+                "summary": "Simulate Payment of an Invoice (Sandbox Only)",
+                "description": "Simulate payment of an invoice.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "invoice_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Onchain payment simulated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Type of response, identifies if a payment was successful or not",
+                                            "example": "Onchain payment simulated successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/moon-reserve": {
+            "get": {
+                "tags": [
+                    "Moon Reserve"
+                ],
+                "summary": "Fetch Moon Reserve Balance",
+                "description": "View your current Moon Reserve balance. This is the amount of unallocated balance on your account.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Balance of your Moon Reserve",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "balance": {
+                                            "type": "string",
+                                            "description": "Your Moon Reserve balance"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/api-gateway/end-customer/:id": {
+            "patch": {
+                "tags": [
+                    "End Customer"
+                ],
+                "summary": "Update End Customer KYC Status",
+                "description": "Update the KYC status of an end customer.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "required": false,
+                        "description": "The unique identifier for the end customer.",
+                        "schema": {
+                            "type": "string",
+                            "default": ""
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "is_kyc_verified": {
+                                        "type": "boolean",
+                                        "description": "The KYC verification status of the end customer.",
+                                        "example": true,
+                                        "x-readme-id": "0.1"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "End customer KYC status updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Confirmation message.",
+                                            "example": "End customer KYC status updated successfully."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request. Either `id` or `is_kyc_verified` is missing or the request is not from an API Gateway user."
+                    },
+                    "500": {
+                        "description": "Internal Server Error. An error occurred while processing the request."
+                    }
+                }
+            }
+        }
+    },
+    "x-readme": {
+        "explorer-enabled": true,
+        "proxy-enabled": true
+    }
+}
