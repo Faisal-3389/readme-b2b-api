@@ -1,6 +1,6 @@
 ---
 title: Simulate a Card Transaction
-excerpt: |-
+excerpt: |
   This endpoint only works in sandbox.
 
    This endpoint enables you to simulate a transaction for the specified card. You can set the transaction amount, currency, merchant name and merchant country code.
