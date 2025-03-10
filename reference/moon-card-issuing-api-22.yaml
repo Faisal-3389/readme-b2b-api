@@ -1292,6 +1292,283 @@ paths:
           description: Invalid request. Either `id` or `is_kyc_verified` is missing or the request is not from an API Gateway user.
         "500":
           description: Internal Server Error. An error occurred while processing the request.
+  /v1/api-gateway/controls/velocity:
+    post:
+      tags:
+        - VelocityControls
+      summary: Create a new velocity control
+      description: Creates a new velocity control for a given card.
+      operationId: createVelocityControl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - limit_amount
+                - type
+                - velocity_window
+                - card_id
+              properties:
+                limit_amount:
+                  type: number
+                  format: double
+                  minimum: 0
+                  description: The spending limit amount for the velocity control.
+                type:
+                  type: string
+                  enum:
+                    - SPEND
+                  description: The type of velocity control (Only "SPEND" is allowed).
+                velocity_window:
+                  type: string
+                  enum:
+                    - MONTH
+                  description: The time window for the velocity control (Only "MONTH" is allowed).
+                card_id:
+                  type: string
+                  format: uuid
+                  description: The card ID to apply the velocity control to.
+      responses:
+        '201':
+          description: Velocity control created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VelocityControl'
+        '400':
+          description: Invalid request parameters.
+        '500':
+          description: Internal server error.
+    get:
+      tags:
+        - VelocityControls
+      summary: Get all velocity controls
+      description: Retrieves a paginated list of velocity controls associated with the API user.
+      operationId: getVelocityControls
+      parameters:
+        - name: card_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Filter by card ID.
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: The page number for pagination.
+        - name: include_deleted
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Include deleted velocity controls in the response.
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: The number of results per page.
+      responses:
+        '200':
+          description: A list of velocity controls.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  velocity_controls:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VelocityControl'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '500':
+          description: Internal server error.
+  '/v1/api-gateway/controls/velocity/{id}':
+    get:
+      tags:
+        - VelocityControls
+      summary: Get a specific velocity control
+      description: Retrieves a velocity control by its ID.
+      operationId: getVelocityControlById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the velocity control.
+      responses:
+        '200':
+          description: Velocity control retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VelocityControl'
+        '404':
+          description: Velocity control not found.
+        '500':
+          description: Internal server error.
+    patch:
+      tags:
+        - VelocityControls
+      summary: Update a velocity control
+      description: Updates an existing velocity control.
+      operationId: updateVelocityControl
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the velocity control.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - limit_amount
+                - type
+                - velocity_window
+              properties:
+                limit_amount:
+                  type: number
+                  format: double
+                  minimum: 0
+                  description: The updated spending limit amount.
+                type:
+                  type: string
+                  enum:
+                    - SPEND
+                  description: The type of velocity control (Only "SPEND" is allowed).
+                velocity_window:
+                  type: string
+                  enum:
+                    - MONTH
+                  description: The time window for the velocity control (Only "MONTH" is allowed).
+      responses:
+        '200':
+          description: Velocity control updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VelocityControl'
+        '400':
+          description: Invalid request parameters.
+        '404':
+          description: Velocity control not found.
+        '500':
+          description: Internal server error.
+    delete:
+      tags:
+        - VelocityControls
+      summary: Delete a velocity control
+      description: Soft deletes a velocity control by setting `deleted_at`.
+      operationId: deleteVelocityControl
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the velocity control.
+      responses:
+        '204':
+          description: Velocity control deleted successfully.
+        '404':
+          description: Velocity control not found.
+        '500':
+          description: Internal server error.
+  '/v1/api-gateway/controls/velocity/{id}/status':
+    get:
+      tags:
+        - VelocityControls
+      summary: Get velocity control status
+      description: Retrieves the current usage under the limit for a velocity control.
+      operationId: getVelocityControlStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the velocity control.
+      responses:
+        '200':
+          description: Velocity control status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  used:
+                    type: number
+                    format: double
+                    description: The amount spent under this velocity control.
+                  limit:
+                    type: number
+                    format: double
+                    description: The limit amount of the velocity control.
+                  velocity_control_id:
+                    type: string
+                    format: uuid
+                    description: The ID of the velocity control.
+        '404':
+          description: Velocity control not found.
+        '500':
+          description: Internal server error.
+  '/v1/api-gateway/controls/velocity/card/{card_id}/status':
+    get:
+      tags:
+        - VelocityControls
+      summary: Get velocity control status by card id
+      description: Retrieves the current usage under the limit for a velocity control.
+      operationId: getVelocityControlStatusByCardId
+      parameters:
+        - name: card_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the card.
+      responses:
+        '200':
+          description: Velocity control status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  used:
+                    type: number
+                    format: double
+                    description: The amount spent under this velocity control.
+                  limit:
+                    type: number
+                    format: double
+                    description: The limit amount of the velocity control.
+                  velocity_control_id:
+                    type: string
+                    format: uuid
+                    description: The ID of the velocity control.
+        '404':
+          description: Velocity control not found.
+        '500':
+          description: Internal server error.
 x-readme:
   explorer-enabled: true
   proxy-enabled: true
