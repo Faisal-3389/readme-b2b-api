@@ -1316,7 +1316,7 @@ paths:
         - VelocityControls
       summary: Create a new velocity control
       description: Creates a new velocity control for a given card.
-      operationId: createVelocityControl
+      # operationId: createVelocityControl
       requestBody:
         required: true
         content:
@@ -1364,7 +1364,7 @@ paths:
         - VelocityControls
       summary: Get all velocity controls
       description: Retrieves a paginated list of velocity controls associated with the API user.
-      operationId: getVelocityControls
+      # operationId: getVelocityControls
       parameters:
         - name: card_id
           in: query
@@ -1415,7 +1415,7 @@ paths:
         - VelocityControls
       summary: Get a specific velocity control
       description: Retrieves a velocity control by its ID.
-      operationId: getVelocityControlById
+      # operationId: getVelocityControlById
       parameters:
         - name: id
           in: path
@@ -1440,7 +1440,7 @@ paths:
         - VelocityControls
       summary: Update a velocity control
       description: Updates an existing velocity control.
-      operationId: updateVelocityControl
+      # operationId: updateVelocityControl
       parameters:
         - name: id
           in: path
@@ -1493,7 +1493,7 @@ paths:
         - VelocityControls
       summary: Delete a velocity control
       description: Soft deletes a velocity control by setting `deleted_at`.
-      operationId: deleteVelocityControl
+      # operationId: deleteVelocityControl
       parameters:
         - name: id
           in: path
@@ -1515,7 +1515,7 @@ paths:
         - VelocityControls
       summary: Get velocity control status
       description: Retrieves the current usage under the limit for a velocity control.
-      operationId: getVelocityControlStatus
+      # operationId: getVelocityControlStatus
       parameters:
         - name: id
           in: path
@@ -1554,7 +1554,7 @@ paths:
         - VelocityControls
       summary: Get velocity control status by card id
       description: Retrieves the current usage under the limit for a velocity control.
-      operationId: getVelocityControlStatusByCardId
+      # operationId: getVelocityControlStatusByCardId
       parameters:
         - name: card_id
           in: path
