@@ -21,7 +21,7 @@ excerpt: |
    
    REFUND 8 USD. => this will simulate refunding the $8.
 api:
-  file: moon-card-issuing-api-22.json
+  file: moon-card-issuing-api-22.yaml
   operationId: post_v1-api-gateway-card-card-id-transactions
 deprecated: false
 hidden: false

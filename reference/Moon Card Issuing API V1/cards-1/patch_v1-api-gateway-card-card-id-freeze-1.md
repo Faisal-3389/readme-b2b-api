@@ -5,7 +5,7 @@ excerpt: >-
   not mean all activity on the card stops. Some activity will continue, such as
   pending transactions can settle, refunds can process, forced settlements, etc.
 api:
-  file: moon-card-issuing-api-22.json
+  file: moon-card-issuing-api-22.yaml
   operationId: patch_v1-api-gateway-card-card-id-freeze
 deprecated: false
 hidden: false

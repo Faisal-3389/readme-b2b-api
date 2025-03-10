@@ -2,7 +2,7 @@
 title: Update End Customer KYC Status
 excerpt: Update the KYC status of an end customer.
 api:
-  file: moon-card-issuing-api-22.json
+  file: moon-card-issuing-api-22.yaml
   operationId: patch_v1-api-gateway-end-customer-id-1
 hidden: false
 ---
