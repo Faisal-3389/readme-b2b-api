@@ -52,6 +52,24 @@ components:
       in: header
       name: x-api-key
   schemas:
+    Pagination:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          description: Current page number
+        from:
+          type: integer
+          description: Start point of pagination
+        lastPage:
+          type: integer
+          description: Last page of the query
+        perPage:
+          type: integer
+          description: Number of items per page
+        total:
+          type: integer
+          description: Total records of query
     VelocityControl:
       type: object
       properties:
